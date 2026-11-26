@@ -627,4 +627,176 @@ document.addEventListener('DOMContentLoaded', () => {
       paintStars(5);
     });
   }
+
+  /* ------------------------------------------------------------------------
+     Inline Navbar Search Dropdown
+     ------------------------------------------------------------------------ */
+  const desktopSearchBtn = document.querySelector('.rs-action-card .rs-search-trigger[aria-label="Search"]');
+  if (desktopSearchBtn) {
+    desktopSearchBtn.removeAttribute('data-bs-toggle');
+    desktopSearchBtn.removeAttribute('data-bs-target');
+
+    const wrap = document.createElement('div');
+    wrap.className = 'rs-nav-search-wrap';
+    desktopSearchBtn.parentNode.insertBefore(wrap, desktopSearchBtn);
+    wrap.appendChild(desktopSearchBtn);
+
+    const form = document.createElement('form');
+    form.className = 'rs-nav-search-box';
+    form.setAttribute('role', 'search');
+    form.innerHTML = `
+      <input type="text" class="rs-nav-search-input" placeholder="Searching..." aria-label="Search" />
+      <button type="submit" class="rs-nav-search-submit" aria-label="Submit search">
+        <i class="ri-search-line"></i>
+      </button>
+    `;
+    wrap.appendChild(form);
+
+    const icon = desktopSearchBtn.querySelector('i');
+    const input = form.querySelector('.rs-nav-search-input');
+
+    const closeSearch = () => {
+      wrap.classList.remove('is-open');
+      desktopSearchBtn.classList.remove('is-active');
+      if (icon) icon.className = 'ri-search-line';
+    };
+
+    const openSearch = () => {
+      wrap.classList.add('is-open');
+      desktopSearchBtn.classList.add('is-active');
+      if (icon) icon.className = 'ri-close-line';
+      setTimeout(() => input?.focus(), 60);
+    };
+
+    desktopSearchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (wrap.classList.contains('is-open')) {
+        closeSearch();
+      } else {
+        openSearch();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (wrap.classList.contains('is-open') && !wrap.contains(e.target)) {
+        closeSearch();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && wrap.classList.contains('is-open')) {
+        closeSearch();
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = (input?.value || '').trim();
+      if (!q) {
+        input?.focus();
+        return;
+      }
+      const blogSearchInput = document.getElementById('blogSearchInput');
+      if (blogSearchInput) {
+        blogSearchInput.value = q;
+        blogSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        closeSearch();
+        document.getElementById('blogList')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.location.href = `blog.html?q=${encodeURIComponent(q)}`;
+      }
+    });
+
+    const urlQuery = new URLSearchParams(window.location.search).get('q');
+    const blogSearchInput = document.getElementById('blogSearchInput');
+    if (urlQuery && blogSearchInput) {
+      blogSearchInput.value = urlQuery;
+      blogSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     Right Info Drawer (Grid Button Offcanvas)
+     ------------------------------------------------------------------------ */
+  const infoDrawerBtn = document.querySelector('.rs-action-card button[aria-label="Open Info Drawer"]');
+  if (infoDrawerBtn) {
+    infoDrawerBtn.removeAttribute('data-bs-toggle');
+    infoDrawerBtn.removeAttribute('data-bs-target');
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rs-info-backdrop';
+
+    const drawer = document.createElement('aside');
+    drawer.className = 'rs-info-drawer';
+    drawer.setAttribute('aria-label', 'Company Info Drawer');
+    drawer.innerHTML = `
+      <div class="rs-info-drawer-head rs-info-anim">
+        <a href="index.html">
+          <img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/logo-dark-home4.png" alt="Industrie" />
+        </a>
+        <button type="button" class="rs-info-close" aria-label="Close drawer">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+      <p class="rs-info-desc rs-info-anim">
+        When we go to the office every day, we carry on a time-honored tradition of getting to know our clients on a first-name basis, and personally meeting their insurance needs.
+      </p>
+      <div class="rs-info-gallery rs-info-anim">
+        <a href="index.html#portfolio"><img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/blog_015-1200x630.jpg" alt="Industrial plant" /></a>
+        <a href="index.html#portfolio"><img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/blog_014-1200x630.jpg" alt="Laboratory team" /></a>
+        <a href="index.html#portfolio"><img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/blog_013-1200x630.jpg" alt="Storage tanks" /></a>
+        <a href="index.html#portfolio"><img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/blog_012-1200x630.jpg" alt="Engineering inspection" /></a>
+        <a href="index.html#portfolio"><img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/blog_011-1200x630.jpg" alt="Pipeline network" /></a>
+        <a href="index.html#portfolio"><img src="https://industrie.rstheme.com/laboratory/wp-content/uploads/2024/03/Banner-Img.jpg" alt="Construction machinery" /></a>
+      </div>
+      <ul class="rs-info-contact rs-info-anim">
+        <li>
+          <i class="ri-map-pin-line"></i>
+          <span>374 William S Canning Blvd, Fall River MA Road 2721, USA</span>
+        </li>
+        <li>
+          <i class="ri-phone-line"></i>
+          <a href="tel:+88015569566">(+880)155-69566</a>
+        </li>
+        <li>
+          <i class="ri-mail-line"></i>
+          <a href="mailto:info@gmail.com">info@gmail.com</a>
+        </li>
+      </ul>
+      <div class="rs-info-socials rs-info-anim">
+        <a href="#" aria-label="Facebook"><i class="ri-facebook-fill"></i></a>
+        <a href="#" aria-label="Twitter"><i class="ri-twitter-x-line"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="ri-linkedin-fill"></i></a>
+        <a href="#" aria-label="YouTube"><i class="ri-youtube-fill"></i></a>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(drawer);
+
+    const openDrawer = () => {
+      backdrop.classList.add('is-open');
+      drawer.classList.add('is-open');
+    };
+
+    const closeDrawer = () => {
+      backdrop.classList.remove('is-open');
+      drawer.classList.remove('is-open');
+    };
+
+    infoDrawerBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openDrawer();
+    });
+
+    drawer.querySelector('.rs-info-close')?.addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+        closeDrawer();
+      }
+    });
+  }
 });
